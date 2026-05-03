@@ -4,27 +4,28 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
 const { query } = require("../config/db");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { Groq } = require("groq-sdk");
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+// Initialize Groq
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 router.get("/ping", (req, res) => {
   res.json({ 
-    message: "AI ROUTE ACTIVE", 
-    apiKeySet: !!process.env.GEMINI_API_KEY,
-    keyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0,
-    model: "gemini-pro"
+    message: "AI ROUTE ACTIVE (GROQ)", 
+    apiKeySet: !!process.env.GROQ_API_KEY,
+    model: "llama-3.3-70b-versatile"
   });
 });
 
 router.post("/chat", authMiddleware, async (req, res) => {
   const { message } = req.body;
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return res.status(500).json({ 
       error: "AI NOT CONFIGURED", 
-      message: "Please set GEMINI_API_KEY in your .env file to enable the Iron Coach." 
+      message: "Please set GROQ_API_KEY in your .env file to enable the Iron Coach." 
     });
   }
 
@@ -47,8 +48,6 @@ router.post("/chat", authMiddleware, async (req, res) => {
 
     // 2. Prepare System Prompt
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      
       const systemPrompt = `
         You are "Iron Intelligence" (II), the elite AI fitness coach for the IronLog platform. 
         Your personality: Highly motivating, slightly intense, expert-level knowledge in hypertrophy, strength training, and productivity. 
@@ -64,26 +63,29 @@ router.post("/chat", authMiddleware, async (req, res) => {
         - Format with markdown (bolding, lists).
       `;
 
-      const chat = model.startChat({
-        history: [
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
           {
             role: "user",
-            parts: [{ text: systemPrompt }],
-          },
-          {
-            role: "model",
-            parts: [{ text: "UNDERSTOOD. IRON INTELLIGENCE ONLINE. STANDING BY FOR PERFORMANCE OPTIMIZATION." }],
-          },
+            content: message
+          }
         ],
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.7,
+        max_tokens: 1024,
+        top_p: 1,
+        stream: false,
       });
 
-      const result = await chat.sendMessage(message);
-      const response = await result.response;
-      const text = response.text();
-      res.json({ reply: text });
+      const reply = chatCompletion.choices[0]?.message?.content || "The Iron Coach is speechless. Try again.";
+      res.json({ reply });
 
     } catch (err) {
-      console.error(`❌ AI Error:`, err.message);
+      console.error(`❌ Groq AI Error:`, err.message);
       res.status(500).json({ error: "AI Coach is temporarily unavailable." });
     }
   } catch (error) {
