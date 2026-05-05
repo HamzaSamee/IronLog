@@ -8,6 +8,7 @@ import { useState, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { cn } from '../lib/utils'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 const VideoSlider = ({ videos }) => {
   const scrollRef = useRef(null)
@@ -80,60 +81,59 @@ const LogForm = ({ onSubmit, isPending }) => {
   }
 
   return (
-    <div className="bg-gray-800/30 border border-gray-700/50 rounded-[2.5rem] p-8 backdrop-blur-sm">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+    <div className="space-y-8">
+      <div className="flex items-center gap-4">
+        <div className="h-12 w-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-500/10">
           <Zap className="h-6 w-6" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white">Log Today's Session</h3>
-          <p className="text-gray-500 text-sm">Quickly record your performance.</p>
+          <h3 className="text-2xl font-black text-white tracking-tight">Log Today's Session</h3>
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">Rapid Synchronization</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Activity Name</label>
-          <input 
-            type="text" 
-            placeholder="e.g. Heavy Back Day, Morning Run..."
-            className="w-full bg-gray-900/50 border border-gray-700 rounded-2xl px-6 py-4 focus:outline-none focus:border-emerald-500 transition-all placeholder:text-gray-600"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Activity</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Heavy Back Day"
+              className="w-full bg-gray-900/40 border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-gray-600 text-sm"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Intensity: <span className="text-emerald-400">{intensity}</span></label>
+            </div>
+            <div className="pt-3">
+              <input 
+                type="range" 
+                min="1" 
+                max="10" 
+                className="w-full h-1.5 bg-gray-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                value={intensity}
+                onChange={(e) => setIntensity(parseInt(e.target.value))}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">Description (Optional)</label>
-          <textarea 
-            placeholder="How did it go? Any PRs?"
-            rows={2}
-            className="w-full bg-gray-900/50 border border-gray-700 rounded-2xl px-6 py-4 focus:outline-none focus:border-emerald-500 transition-all placeholder:text-gray-600"
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-1">Description (Optional)</label>
+          <input 
+            type="text"
+            placeholder="How did it go?"
+            className="w-full bg-gray-900/40 border border-white/5 rounded-xl px-4 py-3 focus:outline-none focus:border-emerald-500/50 transition-all placeholder:text-gray-600 text-sm"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
           />
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between ml-1">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500">Intensity</label>
-            <span className="text-emerald-400 font-black text-xl">{intensity}</span>
-          </div>
-          <input 
-            type="range" 
-            min="1" 
-            max="10" 
-            className="w-full h-2 bg-gray-900 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-            value={intensity}
-            onChange={(e) => setIntensity(parseInt(e.target.value))}
-          />
-          <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter text-gray-600">
-            <span>Chill</span>
-            <span>Monster Mode</span>
-          </div>
-        </div>
-
-        <Button type="submit" disabled={isPending} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-8 rounded-3xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3 group transition-all">
+        <Button type="submit" disabled={isPending} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-6 rounded-2xl shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-3 group transition-all text-sm tracking-widest">
           {isPending ? 'LOGGING...' : (
             <>
               LOG ACTIVITY
@@ -147,38 +147,36 @@ const LogForm = ({ onSubmit, isPending }) => {
 }
 
 const ActiveMissions = ({ missions, onToggle }) => {
-  const activeMissions = missions?.filter(m => !m.completed).slice(0, 3)
+  const activeMissions = missions?.filter(m => !m.completed).slice(0, 4)
 
   if (!activeMissions || activeMissions.length === 0) return null
 
   return (
-    <div className="bg-gray-800/30 border border-gray-700/50 rounded-[2.5rem] p-8 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
           <Target className="h-5 w-5 text-emerald-400" />
           Active Missions
         </h3>
         <Link to="/goals" className="text-xs font-black text-emerald-500 uppercase tracking-widest hover:text-emerald-400 transition-colors">View All</Link>
       </div>
-      <div className="space-y-4">
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {activeMissions.map((mission) => (
           <div 
             key={mission.id}
-            className="group flex items-center justify-between p-4 bg-gray-900/50 border border-gray-800 rounded-2xl hover:border-emerald-500/30 transition-all"
+            className="group flex items-center gap-4 p-4 bg-gray-900/40 border border-white/5 rounded-2xl hover:border-emerald-500/30 transition-all glass-card-hover"
           >
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => onToggle(mission.id, true)}
-                className="text-gray-600 hover:text-emerald-400 transition-colors"
-              >
-                <Circle className="h-6 w-6" />
-              </button>
-              <div>
-                <div className="font-bold text-white group-hover:text-emerald-400 transition-colors">{mission.title}</div>
-                <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Priority {mission.priority}</div>
-              </div>
+            <button 
+              onClick={() => onToggle(mission.id, true)}
+              className="flex-shrink-0 text-gray-600 hover:text-emerald-400 transition-colors"
+            >
+              <Circle className="h-5 w-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="font-bold text-white group-hover:text-emerald-400 transition-colors truncate text-sm">{mission.title}</div>
+              <div className="text-[9px] text-gray-500 font-black uppercase tracking-widest">Level {mission.priority}</div>
             </div>
-            <ArrowRight className="h-4 w-4 text-gray-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
           </div>
         ))}
       </div>
@@ -229,23 +227,43 @@ export default function Dashboard({ user }) {
     }
   })
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  }
+
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-20">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="max-w-6xl mx-auto space-y-12 pb-20"
+    >
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">System Active</span>
           </div>
-          <h1 className="text-6xl font-black tracking-tighter text-white mb-2">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-2 leading-none">
             IRON <span className="text-emerald-500">DASH.</span>
           </h1>
           <p className="text-gray-400 text-lg">
             Welcome back, <span className="text-white font-bold">{user.username}</span>.
           </p>
         </div>
-        <div className="bg-gray-800/30 border border-gray-700/50 p-6 rounded-[2rem] flex items-center gap-4">
+        <div className="glass-card p-6 flex items-center gap-4">
           <div className="h-12 w-12 rounded-2xl bg-gray-900 flex items-center justify-center text-emerald-400 border border-gray-800">
             <Calendar className="h-6 w-6" />
           </div>
@@ -254,22 +272,29 @@ export default function Dashboard({ user }) {
             <div className="text-white font-bold">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Video Slider */}
-      <VideoSlider videos={videos} />
+      <motion.div variants={itemVariants}>
+        <VideoSlider videos={videos} />
+      </motion.div>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 space-y-12">
-          <LogForm onSubmit={(data) => logMutation.mutate(data)} isPending={logMutation.isPending} />
-          <ActiveMissions 
-            missions={missions} 
-            onToggle={(id, completed) => completeMissionMutation.mutate({ id, completed })} 
-          />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
+          <div className="glass-card p-6 md:p-8">
+            <LogForm onSubmit={(data) => logMutation.mutate(data)} isPending={logMutation.isPending} />
+          </div>
+          
+          <div className="glass-card p-6 md:p-8">
+            <ActiveMissions 
+              missions={missions} 
+              onToggle={(id, completed) => completeMissionMutation.mutate({ id, completed })} 
+            />
+          </div>
+        </motion.div>
 
-        <div className="space-y-8">
+        <motion.div variants={itemVariants} className="space-y-8">
           <div className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-[2.5rem] p-8 shadow-2xl shadow-emerald-500/20 group relative overflow-hidden">
             <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
               <Target className="h-40 w-40" />
@@ -286,7 +311,7 @@ export default function Dashboard({ user }) {
             </Link>
           </div>
 
-          <div className="bg-gray-800/30 border border-gray-700/50 rounded-[2.5rem] p-8 backdrop-blur-sm">
+          <div className="glass-card p-8 glass-card-hover">
             <h3 className="font-bold text-xl flex items-center gap-2 mb-8">
               <History className="h-6 w-6 text-blue-400" />
               Recent Progress
@@ -321,7 +346,7 @@ export default function Dashboard({ user }) {
             </div>
           </div>
 
-          <div className="bg-gray-800/30 border border-gray-700/50 rounded-[2.5rem] p-8 backdrop-blur-sm">
+          <div className="glass-card p-8 glass-card-hover">
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <Info className="h-5 w-5 text-blue-400" />
               Insights
@@ -341,8 +366,8 @@ export default function Dashboard({ user }) {
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
