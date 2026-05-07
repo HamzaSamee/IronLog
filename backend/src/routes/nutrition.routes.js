@@ -5,7 +5,7 @@ const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
 const { query } = require("../config/db");
 
-// GET /api/nutrition - Fetch meals and their items for the user
+// GET /api/nutrition to Fetch meals and their items for the user
 router.get("/", authMiddleware, async (req, res) => {
     try {
         const result = await query(`
@@ -40,9 +40,9 @@ router.get("/", authMiddleware, async (req, res) => {
 
 // POST /api/nutrition/meal - Create a meal with items (3NF Transactional feel)
 router.post("/meal", authMiddleware, async (req, res) => {
-    const { meal_type, items } = req.body; // items = [{ name: 'Rice', calories: 200 }]
+    const { meal_type, items } = req.body; 
     try {
-        // Start "Transaction" manually via series of queries
+        // Start "Transaction" via queries
         const mealResult = await query(
             "INSERT INTO meals (user_id, meal_type) VALUES ($1, $2) RETURNING id",
             [req.user.id, meal_type]
@@ -62,7 +62,7 @@ router.post("/meal", authMiddleware, async (req, res) => {
     }
 });
 
-// GET /api/nutrition/daily-calories - Get daily calorie totals for graph
+// GET /api/nutrition/daily-calories - Get daily calorie total graph
 router.get("/daily-calories", authMiddleware, async (req, res) => {
     try {
         const result = await query(`
